@@ -8,10 +8,12 @@
     <a href="{{ route('admin.negocios.create') }}" class="btn btn-primary">Crear nuevo</a>
   </div>
   <table class="table table-striped">
-    <thead><tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr></thead>
+    <thead><tr><th></th><th>ID</th><th>Nombre</th><th>Acciones</th></tr></thead>
     <tbody>
       @foreach($negocios as $n)
         <tr>
+          @php $firstImg = $n->imagenes->first(); $thumb = $firstImg ? $firstImg->getUrl() : null; @endphp
+          <td style="width:100px"><img src="{{ $thumb ?: 'https://via.placeholder.com/120x80?text=No+Image' }}" class="img-fluid rounded" alt="" style="max-height:60px"></td>
           <td>{{ $n->id_negocio }}</td>
           <td>{{ $n->nombre_negocio }}</td>
           <td>

@@ -14,6 +14,21 @@
           <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="{{ route('admin.negocios.index') }}">Negocios</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ route('admin.categorias.index') }}">Categorías</a></li>
+            @if(session('admin_name'))
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">{{ session('admin_name') }}</a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <form method="POST" action="{{ route('admin.logout') }}" class="px-3 py-2">
+                      @csrf
+                      <button class="btn btn-sm btn-danger w-100">Cerrar sesión</button>
+                    </form>
+                  </li>
+                </ul>
+              </li>
+            @else
+              <li class="nav-item"><a class="nav-link" href="{{ route('admin.login') }}">Iniciar sesión</a></li>
+            @endif
           </ul>
         </div>
       </div>
