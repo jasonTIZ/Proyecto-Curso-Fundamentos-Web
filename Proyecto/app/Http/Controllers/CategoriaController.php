@@ -7,10 +7,23 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categorias = CategoriaNegocio::orderBy('nombre_categoria')->get();
-        return view('categorias.index', compact('categorias'));
+        // Todas las categorías con conteo de negocios
+        $categorias = CategoriaNegocio::withCount('negocios')->orderBy('nombre_categoria')->get();
+
+        // Si el usuario selecciona una categoría específica
+        $categoriaSeleccionada = null;
+        $negocios = collect();
+
+        if ($request->has('categoria')) {
+            $categoriaSeleccionada = CategoriaNegocio::with('negocios.imagenes')
+                ->where('id_categoria_negocio', $request->categoria)
+                ->first();
+            $negocios = $categoriaSeleccionada ? $categoriaSeleccionada->negocios : collect();
+        }
+
+        return view('categorias.index', compact('categorias', 'categoriaSeleccionada', 'negocios'));
     }
 
     public function show($id)
