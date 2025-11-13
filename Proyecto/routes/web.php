@@ -29,6 +29,8 @@ Route::get('/negocio/{id}', [NegocioController::class, 'show'])->name('negocios.
 Route::get('/producto/{id}', [ProductoController::class, 'show'])->name('productos.show');
 Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
 
+Route::get('/categorias-negocio/{id}', [CategoriaController::class, 'show'])->name('categorias.show');
+
 // Admin auth
 Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');

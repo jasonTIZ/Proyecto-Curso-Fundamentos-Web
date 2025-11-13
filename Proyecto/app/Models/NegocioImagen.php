@@ -16,6 +16,10 @@ class NegocioImagen extends Model
         'id_negocio', 'url_imagen'
     ];
 
+    public function negocio()
+    {
+        return $this->belongsTo(Negocio::class, 'id_negocio');
+    }
     /**
      * Return a usable URL for the image.
      * Handles stored values that may be full URLs, '/storage/..' paths,
