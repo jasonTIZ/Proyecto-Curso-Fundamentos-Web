@@ -11,7 +11,7 @@ class CategoriaNegocio extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre_categoria', 'descripcion'
+        'nombre_categoria', 'descripcion', 'categoria_negocio_imagen_url'
     ];
 
     public function negocios()

@@ -104,8 +104,11 @@
         <div class="row gy-4">
             @forelse($categorias as $c)
                 @php
-                    $img =
-                        $c->imagen_url ?? 'https://via.placeholder.com/800x450?text=' . urlencode($c->nombre_categoria);
+                    $img = $c->categoria_negocio_imagen_url;
+                    if ($img && !Str::startsWith($img, ['http://', 'https://'])) {
+                        $img = asset('storage/' . $img);
+                    }
+                    $img = $img ?: 'https://via.placeholder.com/800x450?text=' . urlencode($c->nombre_categoria);
                 @endphp
 
                 <div class="col-sm-6 col-md-4 col-lg-3">

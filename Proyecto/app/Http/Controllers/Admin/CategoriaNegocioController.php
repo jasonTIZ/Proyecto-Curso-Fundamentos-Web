@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CategoriaNegocio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str; // Add this line
 
 class CategoriaNegocioController extends Controller
 {
@@ -23,10 +25,18 @@ class CategoriaNegocioController extends Controller
     {
         $request->validate([
             'nombre_categoria' => 'required|string|max:150',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
+            'categoria_negocio_imagen_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Added validation
         ]);
 
-        CategoriaNegocio::create($request->only(['nombre_categoria','descripcion']));
+        $data = $request->only(['nombre_categoria','descripcion']);
+
+        if ($request->hasFile('categoria_negocio_imagen_url')) {
+            $path = $request->file('categoria_negocio_imagen_url')->store('categorias', 'public');
+            $data['categoria_negocio_imagen_url'] = $path;
+        }
+
+        CategoriaNegocio::create($data);
         return redirect()->route('admin.categorias.index')->with('success','Categoría creada');
     }
 
@@ -40,17 +50,35 @@ class CategoriaNegocioController extends Controller
     {
         $request->validate([
             'nombre_categoria' => 'required|string|max:150',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
+            'categoria_negocio_imagen_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Added validation
         ]);
         
         $categoria = CategoriaNegocio::where('id_categoria_negocio',$id)->firstOrFail();
-        $categoria->update($request->only(['nombre_categoria','descripcion']));
+        $data = $request->only(['nombre_categoria','descripcion']);
+
+        if ($request->hasFile('categoria_negocio_imagen_url')) {
+            // Delete old image if it exists and is a local file
+            if ($categoria->categoria_negocio_imagen_url && !Str::startsWith($categoria->categoria_negocio_imagen_url, ['http://', 'https://'])) {
+                Storage::disk('public')->delete($categoria->categoria_negocio_imagen_url);
+            }
+            $path = $request->file('categoria_negocio_imagen_url')->store('categorias', 'public');
+            $data['categoria_negocio_imagen_url'] = $path;
+        }
+
+        $categoria->update($data);
         return redirect()->route('admin.categorias.index')->with('success','Categoría actualizada');
     }
 
     public function destroy($id)
     {
         $categoria = CategoriaNegocio::where('id_categoria_negocio',$id)->firstOrFail();
+        
+        // Delete associated image if it's a local file
+        if ($categoria->categoria_negocio_imagen_url && !Str::startsWith($categoria->categoria_negocio_imagen_url, ['http://', 'https://'])) {
+            Storage::disk('public')->delete($categoria->categoria_negocio_imagen_url);
+        }
+
         $categoria->delete();
         return redirect()->route('admin.categorias.index')->with('success','Categoría eliminada');
     }
