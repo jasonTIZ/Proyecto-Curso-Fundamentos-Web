@@ -81,3 +81,8 @@ footer.site-footer{padding:28px 0; margin-top:40px; text-align:center; color:var
 .btn-accent:hover {
   background-color: #333;
 }
+
+/* Thumbnail active border for business show page */
+.thumbnail-link.active img {
+  border-color: var(--accent) !important;
+}

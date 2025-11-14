@@ -21,6 +21,11 @@ class CategoriaNegocioController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'nombre_categoria' => 'required|string|max:150',
+            'descripcion' => 'nullable|string'
+        ]);
+
         CategoriaNegocio::create($request->only(['nombre_categoria','descripcion']));
         return redirect()->route('admin.categorias.index')->with('success','Categoría creada');
     }
@@ -33,6 +38,11 @@ class CategoriaNegocioController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'nombre_categoria' => 'required|string|max:150',
+            'descripcion' => 'nullable|string'
+        ]);
+        
         $categoria = CategoriaNegocio::where('id_categoria_negocio',$id)->firstOrFail();
         $categoria->update($request->only(['nombre_categoria','descripcion']));
         return redirect()->route('admin.categorias.index')->with('success','Categoría actualizada');

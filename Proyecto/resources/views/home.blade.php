@@ -7,32 +7,31 @@
         @if (isset($slides) && $slides->isNotEmpty())
             <div id="homeCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
                 <div class="carousel-indicators">
-                    @foreach ($slides as $i => $n)
+                    @foreach ($slides as $i => $slide)
                         <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ $i }}"
                             class="{{ $i == 0 ? 'active' : '' }}" aria-current="{{ $i == 0 ? 'true' : '' }}"
                             aria-label="Slide {{ $i + 1 }}"></button>
                     @endforeach
                 </div>
                 <div class="carousel-inner">
-                    @foreach ($slides as $i => $n)
-                        @php
-                            $firstImg = $n->imagenes->first();
-                            $img = $firstImg ? $firstImg->getUrl() : null;
-                        @endphp
+                    @foreach ($slides as $i => $slide)
                         <div class="carousel-item {{ $i == 0 ? 'active' : '' }}">
-                            <a href="{{ route('negocios.show', $n->id_negocio) }}">
-                                <img src="{{ $img ?: 'https://via.placeholder.com/1200x420?text=' . urlencode($n->nombre_negocio) }}"
-                                    class="d-block w-100" style="max-height:420px;object-fit:cover;"
-                                    alt="{{ $n->nombre_negocio }}">
-                            </a>
-                            @if ($n->nombre_negocio || $n->descripcion)
-                                <div class="carousel-caption d-none d-md-block text-start">
-                                    @if ($n->nombre_negocio)
-                                        <h5>{{ $n->nombre_negocio }}</h5>
-                                    @endif
-                                    @if ($n->descripcion)
-                                        <p>{{ Str::limit($n->descripcion, 120) }}</p>
-                                    @endif
+                            <img src="{{ $slide->getUrl() }}"
+                                class="d-block w-100" style="max-height:420px;object-fit:cover;"
+                                alt="{{ $slide->title }}">
+                            @if ($slide->title || $slide->description || $slide->link)
+                                <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5);">
+                                    <div class="text-start px-4 px-md-5"> {{-- Añadido padding horizontal --}}
+                                        @if ($slide->title)
+                                            <h5>{{ $slide->title }}</h5>
+                                        @endif
+                                        @if ($slide->description)
+                                            <p class="d-none d-sm-block">{{ Str::limit($slide->description, 120) }}</p> {{-- Ocultar descripción en móviles pequeños --}}
+                                        @endif
+                                        @if ($slide->link)
+                                            <a href="{{ $slide->link }}" class="btn btn-primary btn-sm mt-2" target="_blank">Ver más</a>
+                                        @endif
+                                    </div>
                                 </div>
                             @endif
                         </div>

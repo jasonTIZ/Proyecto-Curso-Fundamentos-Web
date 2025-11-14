@@ -23,4 +23,9 @@ class Producto extends Model
     {
         return $this->belongsTo(Negocio::class, 'id_negocio', 'id_negocio');
     }
+
+    public function categoria()
+    {
+        return $this->belongsTo(CategoriaProducto::class, 'id_categoria', 'id_categoria');
+    }
 }

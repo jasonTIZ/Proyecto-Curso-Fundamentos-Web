@@ -1,6 +1,6 @@
-@extends('admin.layout')
+@extends('layouts.app')
 
-@section('title','Login')
+@section('title','Acceso Administrativo')
 
 @section('content')
   <div class="row justify-content-center">

@@ -22,14 +22,15 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NegocioController as AdminNegocioController;
 use App\Http\Controllers\Admin\CategoriaNegocioController as AdminCategoriaController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\SlideController as AdminSlideController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/negocio/{id}', [NegocioController::class, 'show'])->name('negocios.show');
+Route::post('/negocio/{id}/contact', [NegocioController::class, 'contact'])->name('negocios.contact');
 Route::get('/producto/{id}', [ProductoController::class, 'show'])->name('productos.show');
 Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
-
-Route::get('/categorias-negocio/{id}', [CategoriaController::class, 'show'])->name('categorias.show');
+Route::get('/categorias-negocio/{id}', [CategoriaController::class, 'index'])->name('categorias.show');
 
 // Admin auth
 Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -42,6 +43,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
     Route::resource('negocios', AdminNegocioController::class)->names('negocios');
     Route::delete('negocios/{negocio}/imagen/{imagen}', [AdminNegocioController::class,'destroyImage'])->name('negocios.imagen.destroy');
     Route::resource('categorias', AdminCategoriaController::class)->names('categorias');
+    Route::resource('slides', AdminSlideController::class)->names('slides');
     // NOTE: Slides will be generated from existing `negocio` records (no slides table)
     // Productos admin
     Route::resource('productos', App\Http\Controllers\Admin\ProductoController::class)->names('productos');

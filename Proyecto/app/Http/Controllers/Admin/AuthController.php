@@ -48,6 +48,7 @@ class AuthController extends Controller
 
         // login: store admin id and name in session
         session(['admin_id' => $user->id_webmaster, 'admin_name' => $user->nombre]);
+        session()->save(); // Explicitly save the session
 
         return redirect()->route('admin.dashboard');
     }

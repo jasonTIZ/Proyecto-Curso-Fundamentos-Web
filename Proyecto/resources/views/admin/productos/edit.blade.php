@@ -4,7 +4,13 @@
 <div class="container py-4">
     <h3>Editar Producto</h3>
 
-    <form action="{{ route('admin.productos.update', $producto) }}" method="POST" enctype="multipart/form-data" class="ajax-upload-form">
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <form action="{{ route('admin.productos.update',  $producto) }}" method="POST" enctype="multipart/form-data" class="ajax-upload-form">
         @csrf
         @method('PUT')
 
@@ -48,7 +54,7 @@
             <div class="d-flex gap-2 flex-wrap mb-2">
                 @foreach($producto->imagenes as $img)
                     <div class="card" style="width:120px;">
-                        <img src="{{ $img->url_imagen }}" class="card-img-top" style="height:80px;object-fit:cover;" />
+                        <img src="{{ $img->getUrl() }}" class="card-img-top" style="height:80px;object-fit:cover;" />
                         <div class="card-body p-2 text-center">
                             <form action="{{ route('admin.productos.imagen.destroy', ['producto' => $producto->id_producto, 'imagen' => $img->id_imagen]) }}" method="POST" onsubmit="return confirm('Eliminar imagen?');">
                                 @csrf
@@ -66,6 +72,9 @@
                             <div class="progress" style="height:6px"><div class="progress-bar" style="width:0%"></div></div>
                         </div>
                         <div id="preview" class="d-flex flex-wrap gap-2"></div>
+                        @error('images.*')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
         </div>
 
         <button class="btn btn-primary">Actualizar</button>

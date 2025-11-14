@@ -43,10 +43,9 @@ class ProductoController extends Controller
             foreach ($request->file('images') as $file) {
                 if (!$file->isValid()) continue;
                 $path = $file->store('productos', 'public');
-                $url = Storage::url($path);
                 ProductoImagen::create([
                     'id_producto' => $producto->id_producto,
-                    'url_imagen' => $url
+                    'url_imagen' => $path
                 ]);
             }
         }
@@ -81,10 +80,9 @@ class ProductoController extends Controller
             foreach ($request->file('images') as $file) {
                 if (!$file->isValid()) continue;
                 $path = $file->store('productos', 'public');
-                $url = Storage::url($path);
                 ProductoImagen::create([
                     'id_producto' => $producto->id_producto,
-                    'url_imagen' => $url
+                    'url_imagen' => $path
                 ]);
             }
         }
@@ -95,22 +93,33 @@ class ProductoController extends Controller
     public function destroyImage($productoId, $imagenId)
     {
         $image = ProductoImagen::where('id_imagen', $imagenId)->where('id_producto', $productoId)->firstOrFail();
-        try {
-            $publicPath = ltrim(str_replace('/storage/', '', $image->url_imagen), '/');
-            if (Storage::disk('public')->exists($publicPath)) {
-                Storage::disk('public')->delete($publicPath);
-            }
-        } catch (\Exception $e) {
-            // ignore
+        
+        // The 'url_imagen' field now stores the relative path, which can be used directly.
+        if ($image->url_imagen && Storage::disk('public')->exists($image->url_imagen)) {
+            Storage::disk('public')->delete($image->url_imagen);
         }
+        
         $image->delete();
         return back()->with('success','Imagen eliminada');
     }
 
     public function destroy($id)
     {
-        $producto = Producto::where('id_producto',$id)->firstOrFail();
+        $producto = Producto::with('imagenes')->where('id_producto', $id)->firstOrFail();
+
+        // Delete all associated images from storage
+        foreach ($producto->imagenes as $imagen) {
+            try {
+                $path = str_replace('/storage/', '', $imagen->url_imagen);
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            } catch (\Exception $e) {
+                // Log or ignore
+            }
+        }
+
         $producto->delete();
-        return redirect()->route('admin.productos.index')->with('success','Producto eliminado');
+        return redirect()->route('admin.productos.index')->with('success', 'Producto y todas sus imágenes han sido eliminados.');
     }
 }

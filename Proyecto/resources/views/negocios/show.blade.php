@@ -27,15 +27,28 @@
         {{-- Imagen principal --}}
         @php
             $firstImg = $negocio->imagenes->first();
-            $img = $firstImg
-                ? $firstImg->url_imagen
+            $mainImgUrl = $firstImg
+                ? $firstImg->getUrl()
                 : 'https://via.placeholder.com/1200x400?text=' . urlencode($negocio->nombre_negocio);
         @endphp
 
         <div class="mb-4">
-            <img src="{{ $img }}" alt="{{ $negocio->nombre_negocio }}" class="w-100 rounded shadow-sm"
-                style="max-height:400px; object-fit:cover;">
+            <img src="{{ $mainImgUrl }}" alt="{{ $negocio->nombre_negocio }}" class="w-100 rounded shadow-sm"
+                style="max-height:400px; object-fit:cover;" id="mainBusinessImage">
         </div>
+
+        {{-- Galería de miniaturas debajo de la imagen principal --}}
+        @if($negocio->imagenes->count() > 0)
+            <div class="row g-2 mb-4" id="thumbnailGallery">
+                @foreach($negocio->imagenes as $index => $img)
+                    <div class="col-3 col-md-2">
+                        <a href="#" class="thumbnail-link d-block {{ $index == 0 ? 'active' : '' }}" data-full-image="{{ $img->getUrl() }}">
+                            <img src="{{ $img->getUrl() }}" alt="Miniatura de {{ $negocio->nombre_negocio }}" class="img-fluid rounded shadow-sm" style="object-fit:cover; height:80px; width:100%; border: 2px solid transparent;">
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         {{-- Tabs --}}
         <ul class="nav nav-tabs mb-4" id="negocioTabs" role="tablist">
@@ -50,6 +63,19 @@
         </ul>
 
         <div class="tab-content" id="negocioTabsContent">
+
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
             {{-- Información --}}
             <div class="tab-pane fade show active" id="info">
@@ -67,6 +93,12 @@
                             @if ($negocio->email)
                                 <li><strong>Correo:</strong> <a
                                         href="mailto:{{ $negocio->email }}">{{ $negocio->email }}</a></li>
+                            @endif
+                            @if ($negocio->facebook_url)
+                                <li><strong>Facebook:</strong> <a href="{{ $negocio->facebook_url }}" target="_blank">Visitar</a></li>
+                            @endif
+                            @if ($negocio->instagram_url)
+                                <li><strong>Instagram:</strong> <a href="{{ $negocio->instagram_url }}" target="_blank">Visitar</a></li>
                             @endif
                         </ul>
                     </div>
@@ -96,9 +128,14 @@
                                 <img src="{{ $img }}" class="card-img-top" alt="{{ $p->nombre_producto }}"
                                     style="object-fit:cover; height:200px;">
                                 <div class="card-body text-center d-flex flex-column justify-content-between">
-                                    <h6 class="fw-bold">{{ $p->nombre_producto }}</h6>
-                                    <p class="small text-muted mb-2">{{ Str::limit($p->descripcion, 60) }}</p>
-                                    <span class="fw-bold text-dark d-block mb-2">₡{{ number_format($p->precio, 2) }}</span>
+                                    <div>
+                                        <h6 class="fw-bold">{{ $p->nombre_producto }}</h6>
+                                        <p class="small text-muted mb-2">{{ Str::limit($p->descripcion, 60) }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold text-dark d-block mb-2">₡{{ number_format($p->precio, 2) }}</span>
+                                        <a href="{{ route('productos.show', $p->id_producto) }}" class="btn btn-sm btn-primary">Ver Producto</a>
+                                    </div>
                                 </div>
                             </article>
                         </div>
@@ -115,8 +152,10 @@
                 <div class="row g-3 mt-3">
                     @forelse($negocio->imagenes as $img)
                         <div class="col-sm-6 col-md-4">
-                            <img src="{{ $img->url_imagen }}" class="img-fluid rounded shadow-sm"
-                                style="object-fit:cover; height:200px;">
+                            <a href="{{ $img->getUrl() }}" class="glightbox" data-gallery="negocio-gallery">
+                                <img src="{{ $img->getUrl() }}" alt="Imagen de la galería de {{ $negocio->nombre_negocio }}" class="img-fluid rounded shadow-sm"
+                                    style="object-fit:cover; height:200px; width:100%;">
+                            </a>
                         </div>
                     @empty
                         <div class="col-12 text-center">
@@ -128,28 +167,91 @@
 
             {{-- Contacto --}}
             <div class="tab-pane fade" id="contacto">
-                <div class="mt-3">
-                    <h5 class="fw-bold mb-3">Contáctanos</h5>
-                    <ul class="list-unstyled">
-                        @if ($negocio->telefono)
-                            <li><strong>Teléfono:</strong> {{ $negocio->telefono }}</li>
-                        @endif
-                        @if ($negocio->email)
-                            <li><strong>Email:</strong> <a href="mailto:{{ $negocio->email }}">{{ $negocio->email }}</a>
-                            </li>
-                        @endif
-                        @if ($negocio->facebook_url)
-                            <li><strong>Facebook:</strong> <a href="{{ $negocio->facebook_url }}"
-                                    target="_blank">{{ $negocio->facebook_url }}</a></li>
-                        @endif
-                        @if ($negocio->instagram_url)
-                            <li><strong>Instagram:</strong> <a href="{{ $negocio->instagram_url }}"
-                                    target="_blank">{{ $negocio->instagram_url }}</a></li>
-                        @endif
-                    </ul>
+                <div class="row mt-3">
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-3">Envíanos un mensaje</h5>
+                        <form action="{{ route('negocios.contact', $negocio->id_negocio) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="nombre_interesado" class="form-label">Tu Nombre</label>
+                                <input type="text" name="nombre_interesado" id="nombre_interesado" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telefono_interesado" class="form-label">Tu Teléfono</label>
+                                <input type="tel" name="telefono_interesado" id="telefono_interesado" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="correo_interesado" class="form-label">Tu Correo Electrónico</label>
+                                <input type="email" name="correo_interesado" id="correo_interesado" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="mensaje" class="form-label">Mensaje</label>
+                                <textarea name="mensaje" id="mensaje" class="form-control" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="fw-bold mb-3">Nuestra Información</h5>
+                        <ul class="list-unstyled">
+                            @if ($negocio->telefono)
+                                <li><strong>Teléfono:</strong> {{ $negocio->telefono }}</li>
+                            @endif
+                            @if ($negocio->email)
+                                <li><strong>Email:</strong> <a href="mailto:{{ $negocio->email }}">{{ $negocio->email }}</a></li>
+                            @endif
+                            @if ($negocio->facebook_url)
+                                <li><strong>Facebook:</strong> <a href="{{ $negocio->facebook_url }}" target="_blank">Visitar</a></li>
+                            @endif
+                            @if ($negocio->instagram_url)
+                                <li><strong>Instagram:</strong> <a href="{{ $negocio->instagram_url }}" target="_blank">Visitar</a></li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
+
 @endsection
+
+@push('scripts')
+<script>
+    const lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: true
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainImage = document.getElementById('mainBusinessImage');
+        const thumbnails = document.querySelectorAll('#thumbnailGallery .thumbnail-link');
+
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function(e) {
+                e.preventDefault(); // Evitar que el enlace navegue
+
+                // Actualizar la imagen principal
+                mainImage.src = this.dataset.fullImage;
+
+                // Remover la clase 'active' de todas las miniaturas
+                thumbnails.forEach(t => t.classList.remove('active'));
+                thumbnails.forEach(t => t.querySelector('img').style.borderColor = 'transparent');
+
+
+                // Añadir la clase 'active' a la miniatura clicada
+                this.classList.add('active');
+                this.querySelector('img').style.borderColor = '#007bff'; // Color del borde activo
+            });
+        });
+
+        // Inicializar el borde de la primera imagen activa
+        const firstActiveThumbnail = document.querySelector('#thumbnailGallery .thumbnail-link.active');
+        if (firstActiveThumbnail) {
+            firstActiveThumbnail.querySelector('img').style.borderColor = '#007bff';
+        }
+    });
+</script>
+@endpush

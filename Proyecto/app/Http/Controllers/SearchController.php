@@ -23,7 +23,7 @@ class SearchController extends Controller
 
             $productos = Producto::where('nombre_producto', 'like', "%{$q}%")
                 ->orWhere('descripcion', 'like', "%{$q}%")
-                ->with('negocio')
+                ->with('negocio', 'imagenes') // Eager load images for products
                 ->limit(20)
                 ->get();
         }
