@@ -268,6 +268,23 @@ CREATE TABLE `usuario_webmaster` (
 INSERT INTO `usuario_webmaster` (`id_webmaster`, `nombre`, `apellido1`, `apellido2`, `email`, `telefono`, `contrasena`, `fecha_creacion`) VALUES
 (1, 'jeycob', 'barrientos', 'garcia', 'jbr@gmail.com', '44556699', 'JBR17122**', '0000-00-00 00:00:00');
 
+
+CREATE TABLE `slides` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `title` varchar(255) NOT NULL,
+    `description` text NULL,
+    `image_url` varchar(255) NULL,
+    `link` varchar(255) NULL,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `slides` (`title`, `description`, `image_url`, `link`, `created_at`, `updated_at`) VALUES
+('Bienvenido a nuestro Directorio', 'Descubre los mejores negocios locales cerca de ti.', 'slides/XzQzb6KfV90MNQeqFW4vQUtgtE4ko3nVQNQQ1eW.png', 'https://example.com/about', '2025-11-14 07:07:21', '2025-11-14 07:11:18'),
+('Ofertas Exclusivas', 'No te pierdas las promociones de nuestros comercios.', 'slides/Jg5ujko4RNdTdAQD9VuyYiw8zZHp0nQYKHf8G5.png', 'https://example.com/offers', '2025-11-14 07:07:21', '2025-11-14 07:11:29'),
+('Explora Nuevas Categorías', 'Encuentra lo que buscas en nuestra amplia variedad de categorías.', 'slides/Geau51MeYnQhheBK0Z2Su8x1uVoAm98Z1cA07yu.png', 'https://example.com/categories', '2025-11-14 07:07:22', '2025-11-14 07:10:59');
+
 --
 -- Índices para tablas volcadas
 --
